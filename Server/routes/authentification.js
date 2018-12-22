@@ -1,8 +1,11 @@
 var express = require('express');
 var authent = express.Router();
 var bodyParser = require('body-parser');
+var toolsModule = require('../modules/Tools');
+let tools = new toolsModule();
+var validator = require("email-validator");
 
-authent.use(bodyParser.json()); 
+authent.use(bodyParser.json());
 authent.use(bodyParser.urlencoded({ extended: true }));
 
 module.exports = class Authentification {
@@ -16,25 +19,51 @@ module.exports = class Authentification {
     initRoutes() {
 
         authent.post('/signup', function(req, res) {
-            console.log(this);
-            console.log(req.body);
             let params = req.body;
-            if (!params.email || !params.password){
-                res.status("400");
-                res.send("Invalid details!");
-                return;
+            if (!params.email || !params.password || !validator.validate(params.email)) {
+                res.status(400).json(
+                    {'code' : '400',
+                    'succes' : 'false',
+                    'error' : 'Wrong informations'});
+                    return;
+            } else if (!params.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/)) {
+                res.status(400).json(
+                    {'code' : '400',
+                    'succes' : 'false',
+                    'error' : 'Wrong Password'});
+                    return;
             }
 
             let payload = {
                 email: params.email,
-                password: params.password
+                password: tools.encryptString(params.password),
+                created_on: tools.getDateNowForMysql()
             }
-            console.log(this.db);
-            var sqlInsert = "INSERT INTO logs SET ?";
-            this.db.query(sqlInsert, payload, function(err, res) {
-                if(err) throw err;
-                        console.log("Compte crée avec succès!");
+
+            this.db.insert("logs", payload, function(isCreated) {
+                if (isCreated["succes"]) {
+                    res.status(200).json(
+                        {'code' : '200',
+                        'succes' : 'true',});    
+                } else {
+                    console.log(isCreated["msg"]);
+                    if (isCreated["msg"]["code"] == "ER_DUP_ENTRY") {
+                        res.status(400).json(
+                            {'code' : '400',
+                            'succes' : 'false',
+                            'error' : 'Email already exist'});
+                    } else {
+                        res.status(400).json(
+                            {'code' : '400',
+                            'succes' : 'false',
+                            'error' : 'Inconnue'});
+                    }
+                }
             });
-        });
+        }.bind(this));
+
+        authent.post('/signin', function(req, res) {
+            
+        }.bind(this));
     }
 };
