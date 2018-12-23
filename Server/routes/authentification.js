@@ -44,9 +44,8 @@ module.exports = class Authentification {
                 if (isCreated["succes"]) {
                     res.status(200).json(
                         {'code' : '200',
-                        'succes' : 'true',});    
+                        'succes' : 'true'});    
                 } else {
-                    console.log(isCreated["msg"]);
                     if (isCreated["msg"]["code"] == "ER_DUP_ENTRY") {
                         res.status(400).json(
                             {'code' : '400',
@@ -63,7 +62,24 @@ module.exports = class Authentification {
         }.bind(this));
 
         authent.post('/signin', function(req, res) {
-            
+            let params = req.body;  
+            let payload = {
+                email: params.email,
+                password: params.password
+            }
+            this.db.checkLogin(payload, function(isExist) {
+                if (isExist["succes"]) {
+                    res.status(200).json(
+                        {'code': '200',
+                        'succes': 'true'});
+                } else {
+                    res.status(400).json(
+                        {'code': '400',
+                        'succes': 'false',
+                        'error': isExist["msg"]
+                        });
+                }
+            })
         }.bind(this));
     }
 };

@@ -13,4 +13,14 @@ module.exports = class Tools {
         const salt = bcrypt.genSaltSync(10);
         return bcrypt.hashSync(stringToEncrypt, salt);
     }
+
+    compareEncryptString(stringToCompare, stringEncrypt, callback) {
+        bcrypt.compare(stringToCompare, stringEncrypt, function(err, res) {
+            if (res) {
+                callback(true);
+            } else {
+                callback(false);
+            }
+        });
+    }
 };
