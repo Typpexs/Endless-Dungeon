@@ -57,7 +57,7 @@ module.exports = class Authentification {
                             'succes' : 'false',
                             'error' : 'Inconnue'});
                     }
-                }
+                }   
             });
         }.bind(this));
 
@@ -67,16 +67,18 @@ module.exports = class Authentification {
                 email: params.email,
                 password: params.password
             }
-            this.db.checkLogin(payload, function(isExist) {
-                if (isExist["succes"]) {
+            this.db.checkLogin(payload, function(userData) {
+                if (userData["succes"]) {
                     res.status(200).json(
                         {'code': '200',
-                        'succes': 'true'});
+                        'succes': 'true',
+                        'token': tools.generateTokenForUser(userData)
+                        });
                 } else {
                     res.status(400).json(
                         {'code': '400',
                         'succes': 'false',
-                        'error': isExist["msg"]
+                        'error': userData["msg"]
                         });
                 }
             })

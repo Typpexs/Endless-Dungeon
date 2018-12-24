@@ -43,7 +43,7 @@ module.exports = class Database {
                 tools.compareEncryptString(params.password, result[0].password, function(isGoodPassword) {
                     if (isGoodPassword) {
                         tabResult["succes"] = true;
-                        tabResult["msg"] = result;
+                        tabResult["id"] = result[0].id;
                     } else {
                         tabResult["succes"] = false;
                         tabResult["msg"] = "Wrong password";

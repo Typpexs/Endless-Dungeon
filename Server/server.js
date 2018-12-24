@@ -1,14 +1,16 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var database = require('./modules/Database.js');
+var database = require('./modules/Database');
 let db = new database();
 
-
-var authentification = require('./routes/Authentification.js');
-let auth = new authentification(db);
+var Authentification = require('./routes/Authentification');
+let auth = new Authentification(db);
 app.use('/authentification', auth.routes);
 
+var Home = require('./routes/Home');
+let home = new Home(db);
+app.use('/home', home.routes);
 
 
 //Toujours mettre a la fin pour les routes non definies
