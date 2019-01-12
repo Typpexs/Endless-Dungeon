@@ -29,7 +29,7 @@ module.exports = class Tools {
 
     generateTokenForUser(userData) {
         return jwt.sign({
-            userId: userData["id"]
+            userId: userData.id
         },
         JWT_SIGN_SECRET,
         {

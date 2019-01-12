@@ -4,6 +4,9 @@ var bodyParser = require('body-parser');
 var toolsModule = require('../modules/Tools');
 let tools = new toolsModule();
 var validator = require("email-validator");
+var multipart = require('connect-multiparty');
+var multipartMiddleware = multipart();
+const util = require('util');
 
 authent.use(bodyParser.json());
 authent.use(bodyParser.urlencoded({ extended: true }));
@@ -22,14 +25,12 @@ module.exports = class Authentification {
             let params = req.body;
             if (!params.email || !params.password || !validator.validate(params.email)) {
                 res.status(400).json(
-                    {'code' : '400',
-                    'succes' : 'false',
+                    {'succes' : 'false',
                     'error' : 'Wrong informations'});
                     return;
             } else if (!params.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/)) {
                 res.status(400).json(
-                    {'code' : '400',
-                    'succes' : 'false',
+                    {'succes' : 'false',
                     'error' : 'Wrong Password'});
                     return;
             }
@@ -42,46 +43,76 @@ module.exports = class Authentification {
 
             this.db.insert("logs", payload, function(isCreated) {
                 if (isCreated["succes"]) {
-                    res.status(200).json(
-                        {'code' : '200',
-                        'succes' : 'true'});    
+                    let payloadGetId = { email: params.email }
+                    this.db.getIdWithMail(payloadGetId, function(isIdGet) {
+                        if (isIdGet["succes"]) {
+                            let payloadUser = {
+                                id_logs: isIdGet.id,
+                                pseudo: "User"+isIdGet.id
+                            }
+                            this.db.insert("user", payloadUser, function(isUserCreated) {
+                                if (isUserCreated.succes) {
+                                    res.status(200).json({
+                                        'succes': 'true'
+                                    });
+                                } else {
+                                    res.status(400).json(
+                                        {'succes' : 'false',
+                                        'error' : 'Create user failed'});                                                                
+                                }
+                            });
+                        } else {
+                            res.status(400).json(
+                                {'succes' : 'false',
+                                'error' : 'Create user failed'});                            
+                        }
+                    }.bind(this));
                 } else {
                     if (isCreated["msg"]["code"] == "ER_DUP_ENTRY") {
                         res.status(400).json(
-                            {'code' : '400',
-                            'succes' : 'false',
+                            {'succes' : 'false',
                             'error' : 'Email already exist'});
                     } else {
                         res.status(400).json(
-                            {'code' : '400',
-                            'succes' : 'false',
+                            {'succes' : 'false',
                             'error' : 'Inconnue'});
                     }
                 }   
-            });
+            }.bind(this));
         }.bind(this));
 
-        authent.post('/signin', function(req, res) {
-            let params = req.body;  
+        authent.post('/signin', multipartMiddleware, function(req, res) {
+            let params = req.body;
             let payload = {
                 email: params.email,
                 password: params.password
             }
             this.db.checkLogin(payload, function(userData) {
-                if (userData["succes"]) {
-                    res.status(200).json(
-                        {'code': '200',
-                        'succes': 'true',
-                        'token': tools.generateTokenForUser(userData)
-                        });
+                if (userData.succes) {
+                    let payloadId = {
+                        id_logs: userData.id
+                    }
+                    this.db.getDataOneColumn("id", "user", payloadId, function(userId) {
+                        if (userId.succes) {
+                            res.status(200).json(
+                                {'succes': 'true',
+                                'token': tools.generateTokenForUser(userId.result)
+                                });
+                        } else {
+                            res.status(400).json(
+                                {'succes': 'false',
+                                'error': userId["msg"]
+                                });
+                        }
+                    });
+
                 } else {
                     res.status(400).json(
-                        {'code': '400',
-                        'succes': 'false',
+                        {'succes': 'false',
                         'error': userData["msg"]
                         });
                 }
-            })
+            }.bind(this));
         }.bind(this));
     }
 };

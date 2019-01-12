@@ -18,6 +18,10 @@ module.exports = class Home {
     initRoutes() {
         home.get('/', function(req, res) {
             let userId = tools.getUserId(req.headers['authorization']);
+            res.status(200).json({
+                'success': 'true',
+                'home': 'c est la maison'
+            });
         }.bind(this));
     }
 };

@@ -11,10 +11,12 @@
   "dependencies": {
     "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
+    "connect-multiparty": "^2.2.0",
     "cookie-parser": "^1.4.3",
     "email-validator": "^2.0.4",
     "express": "^4.16.4",
     "jsonwebtoken": "^8.4.0",
+    "mysql": "^2.16.0",
     "underscore": "^1.9.1"
   }
 }
