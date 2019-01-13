@@ -21,7 +21,7 @@ module.exports = class Authentification {
 
     initRoutes() {
 
-        authent.post('/signup', function(req, res) {
+        authent.post('/signup', multipartMiddleware, function(req, res) {
             let params = req.body;
             if (!params.email || !params.password || !validator.validate(params.email)) {
                 res.status(400).json(

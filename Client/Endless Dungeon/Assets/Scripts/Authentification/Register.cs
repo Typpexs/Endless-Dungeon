@@ -18,22 +18,27 @@ public class Register : MonoBehaviour
     void Start()
     {
         network = gameObject.AddComponent<Network>();
-        registerButton.onClick.AddListener(ClickLogin);
+        registerButton.onClick.AddListener(ClickRegister);
     }
 
-    void ClickLogin()
+    void ClickRegister()
     {
         registerButton.interactable = false;
+        if (string.Compare(password.text, repassword.text) != 0)
+        {
+            errorText.text = "Password and Retype password are not the same.";
+            registerButton.interactable = true;
+            return;
+        }
         List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
         formData.Add(new MultipartFormDataSection("email", email.text));
         formData.Add(new MultipartFormDataSection("password", password.text));
 
-        network.Request("http://192.168.0.22:3000/authentification/signin", (response) => {
+        network.Request("http://192.168.0.22:3000/authentification/signup", (response) => {
             if (Utils.ChangeObjectStringToString(response["succes"].ToString()) == "true")
             {
-                errorText.text = "";
-                string token = Utils.ChangeObjectStringToString(response["token"].ToString());
-                TokenTODELETE.text = token;
+                errorText.text = "GOOD";
+                // token = Utils.ChangeObjectStringToString(response["token"].ToString());
             }
             else
             {
