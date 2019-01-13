@@ -4,37 +4,32 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using MiniJSON;
+using System;
 
 public class Network : MonoBehaviour
 {
     private Dictionary<string, object> response;
-    private bool isResponseFilled = false;
 
-    public void Request(string route, List<IMultipartFormSection> formData = null, string token=null)
+    public void Request(string route, Action<Dictionary<string, object>> cb, List<IMultipartFormSection> formData = null, string token=null)
     {
 
         UnityWebRequest request = UnityWebRequest.Post(route, formData);
         if (token != null)
             request.SetRequestHeader("Authorization", "Bearer " + token);
 
-        StartCoroutine(OnReponse(request));
+        StartCoroutine(OnReponse(request, cb));
     }
 
-    private IEnumerator OnReponse(UnityWebRequest req)
+    private IEnumerator OnReponse(UnityWebRequest req, Action<Dictionary<string, object>> cb)
     {
         yield return req.SendWebRequest();
         response = Json.Deserialize(req.downloadHandler.text) as Dictionary<string, object>;
-        isResponseFilled = true;
+        cb(response);
     }
 
     public Dictionary<string, object> GetResponse()
     {
-        isResponseFilled = false;
         return response;
     }
 
-    public bool GetIsResponseFilled()
-    {
-        return isResponseFilled;
-    }
 }
