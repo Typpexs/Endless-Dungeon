@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 public class Login : MonoBehaviour
 {
     public InputField email;
     public InputField password;
     public Button loginButton;
+    public Button registerButton;
     public Text errorText;
-    public Text TokenTODELETE;
 
     private Dictionary<string, object> response;
     private Network network;
@@ -19,6 +20,7 @@ public class Login : MonoBehaviour
     {
         network = gameObject.AddComponent<Network>();
         loginButton.onClick.AddListener(ClickLogin);
+        registerButton.onClick.AddListener(ClickRegister);
     }
 
     void ClickLogin()
@@ -28,12 +30,13 @@ public class Login : MonoBehaviour
         formData.Add(new MultipartFormDataSection("email", email.text));
         formData.Add(new MultipartFormDataSection("password", password.text));
 
-        network.Request("http://192.168.0.22:3000/authentification/signin", (response) => {
+        network.Request(NetworkManager.Instance.getIpServer()+"/authentification/signin", (response) => {
             if (Utils.ChangeObjectStringToString(response["succes"].ToString()) == "true")
             {
                 errorText.text = "";
                 string token = Utils.ChangeObjectStringToString(response["token"].ToString());
-                TokenTODELETE.text = token;
+                NetworkManager.Instance.setToken(token);
+                SceneManager.LoadScene("Home");
             }
             else
             {
@@ -41,5 +44,10 @@ public class Login : MonoBehaviour
             }
             loginButton.interactable = true;
         }, formData);
+    }
+
+    void ClickRegister()
+    {
+        SceneManager.LoadScene("Register");
     }
 }
