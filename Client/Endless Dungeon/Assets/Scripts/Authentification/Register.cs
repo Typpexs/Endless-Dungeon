@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 public class Register : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class Register : MonoBehaviour
     public InputField password;
     public InputField repassword;
     public Button registerButton;
+    public Button backButton;
     public Text errorText;
 
     private Dictionary<string, object> response;
@@ -19,6 +21,7 @@ public class Register : MonoBehaviour
     {
         network = gameObject.AddComponent<Network>();
         registerButton.onClick.AddListener(ClickRegister);
+        backButton.onClick.AddListener(ClickBack);
     }
 
     void ClickRegister()
@@ -34,11 +37,10 @@ public class Register : MonoBehaviour
         formData.Add(new MultipartFormDataSection("email", email.text));
         formData.Add(new MultipartFormDataSection("password", password.text));
 
-        network.Request("http://192.168.0.22:3000/authentification/signup", (response) => {
+        network.Request(NetworkManager.Instance.getIpServer()+"/authentification/signup", (response) => {
             if (Utils.ChangeObjectStringToString(response["succes"].ToString()) == "true")
             {
-                errorText.text = "GOOD";
-                // token = Utils.ChangeObjectStringToString(response["token"].ToString());
+                SceneManager.LoadScene("Login");
             }
             else
             {
@@ -46,5 +48,10 @@ public class Register : MonoBehaviour
             }
             registerButton.interactable = true;
         }, formData);
+    }
+
+    void ClickBack()
+    {
+        SceneManager.LoadScene("Login");
     }
 }
