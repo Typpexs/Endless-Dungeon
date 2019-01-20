@@ -45,10 +45,20 @@ module.exports = class Tools {
         let userId = -1;
         let token = this.parseAuthorization(authorization);
         if (token != null) {
-            let jwtToken = jwt.verify(token, JWT_SIGN_SECRET);
-            if (jwtToken != null)
+            //let jwtToken = jwt.verify(token, JWT_SIGN_SECRET);
+            try {
+                let jwtToken = jwt.verify(token, JWT_SIGN_SECRET);
                 userId = jwtToken.userId;
+            } catch(err) {
+                return -1;
+              }
         }
         return userId;
     }
+
+    getRandomIntInclusive(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min +1)) + min;
+      }
 };

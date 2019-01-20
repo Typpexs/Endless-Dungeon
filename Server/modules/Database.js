@@ -16,6 +16,11 @@ module.exports = class Database {
             if (err) throw err;
             console.log("Le serveur s'est bien connecté sur la base de donnée MYSQL")
         });
+        this.joinMethod = [];
+        this.joinMethod[0] = " INNER JOIN ";
+        this.joinMethod[1] = " LEFT JOIN ";
+        this.joinMethod[2] = " RIGHT JOIN ";
+        this.joinMethod[3] = " FULL JOIN ";
     }
 
     insert(table, params, callback) {
@@ -23,10 +28,10 @@ module.exports = class Database {
         this.connection.query(sqlInsert, params, function(err, res) {
             let tabResult = {};
             if(err) {
-                tabResult["succes"] = false;
+                tabResult["success"] = false;
                 tabResult["msg"] = err;
             } else {
-                tabResult["succes"] = true;
+                tabResult["success"] = true;
             }
             callback(tabResult);
         });
@@ -37,7 +42,7 @@ module.exports = class Database {
         this.connection.query(sqlLogin, params.email, function(err, result) {
             let tabResult = {};
             if (err || !result[0]) {
-                tabResult["succes"] = false;
+                tabResult["success"] = false;
                 tabResult["msg"] = "Wrong email";
                 callback(tabResult);
             } else {
@@ -47,10 +52,10 @@ module.exports = class Database {
                         tabResult["msg"] = "Wrong email or password";
                     } else {
                         if (isGoodPassword) {
-                            tabResult["succes"] = true;
+                            tabResult["success"] = true;
                             tabResult["id"] = result[0].id;
                         } else {
-                            tabResult["succes"] = false;
+                            tabResult["success"] = false;
                             tabResult["msg"] = "Wrong password";
                         }
                     }
@@ -65,10 +70,10 @@ module.exports = class Database {
         this.connection.query(sqlLogin, params.email, function(err, result) {
             let tabResult = {};
             if (err || !result[0]) {
-                tabResult["succes"] = false;
+                tabResult["success"] = false;
                 tabResult["msg"] = "Wrong email";
             } else {
-                tabResult["succes"] = true;
+                tabResult["success"] = true;
                 tabResult["id"] = result[0].id;
             }
             callback(tabResult);
@@ -80,11 +85,41 @@ module.exports = class Database {
         this.connection.query(sqlData, params, function(err, result) {
             let tabResult = {};
             if (err || !result[0]) {
-                tabResult["succes"] = false;
+                tabResult["success"] = false;
                 tabResult["msg"] = err;
             } else {
-                tabResult["succes"] = true;
+                tabResult["success"] = true;
                 tabResult["result"] = result[0];
+            }
+            callback(tabResult);
+        });
+    }
+
+    // SELECT Orders.OrderID, Customers.CustomerName, Orders.OrderDate
+    // FROM Orders
+    // INNER JOIN Customers ON Orders.CustomerID=Customers.CustomerID;
+
+    //array to string for select;
+    //columnArray example : Orders.OrderID, Customers.CustomerName, Orders.OrderDate ...
+    //tableArray example : Orders, Customers ...
+    //onArray example : Orders.CustomerID=Customers.CustomerID ...
+    //pârams for Where clause example = "user.id": userId
+    getDataWithJoin(columnArray, tableArray, onArray, indexJoinMethod, params, callback) {
+        let stringJoin = "";
+        
+        for (let i=1; i < tableArray.length; i++) {
+            stringJoin += this.joinMethod[indexJoinMethod]+tableArray[i]+" ON "+onArray[i-1];
+        }
+
+        var sqlData = "SELECT "+columnArray.join(', ')+" FROM "+tableArray[0]+stringJoin+ " WHERE ?";
+        this.connection.query(sqlData, params, function(err, result) {
+            let tabResult = {};
+            if (err || !result || !result[0]) {
+                tabResult["success"] = false;
+                tabResult["msg"] = "join failed";
+            } else {
+                tabResult["success"] = true;
+                tabResult["result"] = result;
             }
             callback(tabResult);
         });

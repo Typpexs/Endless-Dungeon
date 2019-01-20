@@ -25,12 +25,12 @@ module.exports = class Authentification {
             let params = req.body;
             if (!params.email || !params.password || !validator.validate(params.email)) {
                 res.status(400).json(
-                    {'succes' : 'false',
+                    {'success' : 'false',
                     'error' : 'Wrong informations'});
                     return;
             } else if (!params.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/)) {
                 res.status(400).json(
-                    {'succes' : 'false',
+                    {'success' : 'false',
                     'error' : 'Wrong Password'});
                     return;
             }
@@ -42,39 +42,39 @@ module.exports = class Authentification {
             }
 
             this.db.insert("logs", payload, function(isCreated) {
-                if (isCreated["succes"]) {
+                if (isCreated["success"]) {
                     let payloadGetId = { email: params.email }
                     this.db.getIdWithMail(payloadGetId, function(isIdGet) {
-                        if (isIdGet["succes"]) {
+                        if (isIdGet["success"]) {
                             let payloadUser = {
                                 id_logs: isIdGet.id,
                                 pseudo: "User"+isIdGet.id
                             }
                             this.db.insert("user", payloadUser, function(isUserCreated) {
-                                if (isUserCreated.succes) {
+                                if (isUserCreated.success) {
                                     res.status(200).json({
-                                        'succes': 'true'
+                                        'success': 'true'
                                     });
                                 } else {
                                     res.status(400).json(
-                                        {'succes' : 'false',
+                                        {'success' : 'false',
                                         'error' : 'Create user failed'});                                                                
                                 }
                             });
                         } else {
                             res.status(400).json(
-                                {'succes' : 'false',
+                                {'success' : 'false',
                                 'error' : 'Create user failed'});                            
                         }
                     }.bind(this));
                 } else {
                     if (isCreated["msg"]["code"] == "ER_DUP_ENTRY") {
                         res.status(400).json(
-                            {'succes' : 'false',
+                            {'success' : 'false',
                             'error' : 'Email already exist'});
                     } else {
                         res.status(400).json(
-                            {'succes' : 'false',
+                            {'success' : 'false',
                             'error' : 'Inconnue'});
                     }
                 }   
@@ -88,19 +88,19 @@ module.exports = class Authentification {
                 password: params.password
             }
             this.db.checkLogin(payload, function(userData) {
-                if (userData.succes) {
+                if (userData.success) {
                     let payloadId = {
                         id_logs: userData.id
                     }
                     this.db.getDataOneColumn("id", "user", payloadId, function(userId) {
-                        if (userId.succes) {
+                        if (userId.success) {
                             res.status(200).json(
-                                {'succes': 'true',
+                                {'success': 'true',
                                 'token': tools.generateTokenForUser(userId.result)
                                 });
                         } else {
                             res.status(400).json(
-                                {'succes': 'false',
+                                {'success': 'false',
                                 'error': userId["msg"]
                                 });
                         }
@@ -108,7 +108,7 @@ module.exports = class Authentification {
 
                 } else {
                     res.status(400).json(
-                        {'succes': 'false',
+                        {'success': 'false',
                         'error': userData["msg"]
                         });
                 }
