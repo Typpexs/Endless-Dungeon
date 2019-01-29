@@ -48,7 +48,6 @@ module.exports = class Character {
         this.sexe = tools.getRandomIntInclusive(0, 1);
         this.level = tools.getRandomIntInclusive(1, this.levelUser);
         this.hpMax = tools.getRandomIntInclusive(10, 30)+this.level;
-        console.log(this.classe);
         if (classeEnum.getClassEnum(this.classe) != "warrior" && classeEnum.getClassEnum(this.classe) != "rogue") {
             this.manaMax = tools.getRandomIntInclusive(10, 30)+this.level;
         }
@@ -64,8 +63,6 @@ module.exports = class Character {
         while (i < 4)
         {
             let iteratorStats = tools.getRandomIntInclusive(0, Object.keys(this.secondaryStats).length-1);
-            console.log(iteratorStats);
-            console.log(this.secondaryStats["criticalRate"]);
             if (this.secondaryStats[this.secondaryStatsTab[iteratorStats]] == 0) {
                 this.secondaryStats[this.secondaryStatsTab[iteratorStats]] = tools.getRandomIntInclusive(this.level*0.1, 5+this.level*0.3);
                 i++;

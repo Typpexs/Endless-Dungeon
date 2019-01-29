@@ -37,6 +37,8 @@ public class Network : MonoBehaviour
         UnityWebRequest request = UnityWebRequest.Get(route);
         if (token != null)
             request.SetRequestHeader("Authorization", "Bearer " + token);
+
+        Debug.Log("Avant coroutine");
         StartCoroutine(OnReponseGet(request, cb));
     }
 

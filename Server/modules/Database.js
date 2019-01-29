@@ -21,6 +21,13 @@ module.exports = class Database {
         this.joinMethod[1] = " LEFT JOIN ";
         this.joinMethod[2] = " RIGHT JOIN ";
         this.joinMethod[3] = " FULL JOIN ";
+
+        this.joinOperator = [];
+        this.joinOperator[0] = " = ";
+        this.joinOperator[1] = " < ";
+        this.joinOperator[2] = " <= ";
+        this.joinOperator[3] = " > ";
+        this.joinOperator[4] = " >= ";
     }
 
     insert(table, params, callback) {
@@ -95,6 +102,38 @@ module.exports = class Database {
         });
     }
 
+    getData(column, table, params, callback) {
+        var sqlData = "SELECT "+column+" FROM "+table+" WHERE ?";
+        this.connection.query(sqlData, params, function(err, result) {
+            let tabResult = {};
+            if (err || !result[0]) {
+                tabResult["success"] = false;
+                tabResult["msg"] = err;
+            } else {
+                tabResult["success"] = true;
+                tabResult["result"] = result;
+            }
+            callback(tabResult);
+        });
+    }
+
+    getDataMultipleWhere(column, table, columnWhere, params, callback) {
+        var sqlData = "SELECT "+column+" FROM "+table+" WHERE "+columnWhere+" in ("+params.toString()+")";
+        this.connection.query(sqlData, params, function(err, result) {
+            console.log(sqlData)
+            console.log(params)
+            let tabResult = {};
+            if (err || !result[0]) {
+                tabResult["success"] = false;
+                tabResult["msg"] = err;
+            } else {
+                tabResult["success"] = true;
+                tabResult["result"] = result;
+            }
+            callback(tabResult);
+        });
+    }
+
     // SELECT Orders.OrderID, Customers.CustomerName, Orders.OrderDate
     // FROM Orders
     // INNER JOIN Customers ON Orders.CustomerID=Customers.CustomerID;
@@ -106,16 +145,45 @@ module.exports = class Database {
     //pârams for Where clause example = "user.id": userId
     getDataWithJoin(columnArray, tableArray, onArray, indexJoinMethod, params, callback) {
         let stringJoin = "";
+        let stringWhere = "";
         
         for (let i=1; i < tableArray.length; i++) {
             stringJoin += this.joinMethod[indexJoinMethod]+tableArray[i]+" ON "+onArray[i-1];
         }
 
-        var sqlData = "SELECT "+columnArray.join(', ')+" FROM "+tableArray[0]+stringJoin+ " WHERE ?";
+        for (let i=0; i < params.length-1; i++) {
+            stringWhere += params[i]+" AND ";
+        }
+        stringWhere += params[params.length-1];
+
+        var sqlData = "SELECT "+columnArray.join(', ')+" FROM "+tableArray[0]+stringJoin+ " WHERE "+stringWhere;
         this.connection.query(sqlData, params, function(err, result) {
             let tabResult = {};
             if (err || !result || !result[0]) {
                 tabResult["success"] = false;
+                console.log(err);
+                tabResult["msg"] = "join failed";
+            } else {
+                tabResult["success"] = true;
+                tabResult["result"] = result;
+            }
+            callback(tabResult);
+        });
+    }
+
+    getDataWithJoinMultipleWhere(columnArray, tableArray, onArray, indexJoinMethod, columnWhere, params, callback) {
+        let stringJoin = "";
+
+        for (let i=1; i < tableArray.length; i++) {
+            stringJoin += this.joinMethod[indexJoinMethod]+tableArray[i]+" ON "+onArray[i-1];
+        }
+
+        var sqlData = "SELECT "+columnArray.join(', ')+" FROM "+tableArray[0]+stringJoin+ " WHERE "+columnWhere+" in ("+params.toString()+")";
+        this.connection.query(sqlData, params, function(err, result) {
+            let tabResult = {};
+            if (err || !result || !result[0]) {
+                tabResult["success"] = false;
+                console.log(err);
                 tabResult["msg"] = "join failed";
             } else {
                 tabResult["success"] = true;

@@ -18,12 +18,13 @@ public class Home : MonoBehaviour
 
     void Start()
     {
-        tavernButton.onClick.AddListener(ClickTavern);
+        network = gameObject.AddComponent<Network>();
+
         Debug.Log(NetworkManager.Instance.getToken());
         network.RequestGet(NetworkManager.Instance.getIpServer() + "/home/", (response) =>
         {
-        if (Utils.ChangeObjectStringToString(response["succes"].ToString()) == "true")
-        {
+            if (Utils.ChangeObjectStringToString(response["success"].ToString()) == "true")
+            {
                 Dictionary<string, object> dictOfResult = (Dictionary<string, object>) response["result"];
                 foreach (var dictResult in (List<object>)dictOfResult["result"])
                 {
@@ -39,10 +40,11 @@ public class Home : MonoBehaviour
             }
             else
             {
-                Debug.Log("CAPASSE PAS");
+                Debug.Log("CA PASSE PAS");
             }
         }, NetworkManager.Instance.getToken());
-        network = gameObject.AddComponent<Network>();
+
+        tavernButton.onClick.AddListener(ClickTavern);
     }
 
     void ClickTavern()

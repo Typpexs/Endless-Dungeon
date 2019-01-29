@@ -31,7 +31,6 @@ module.exports = class Home {
 
             this.db.getDataWithJoin(columnArray, tableArray, onArray, 0, payload, function(data) {
                 if (data.success) {
-                    console.log(data);
                     res.status(200).json({
                         'success': 'true',
                         'result': data
@@ -49,6 +48,15 @@ module.exports = class Home {
 
         home.get('/tavern', function(req, res) {
             let userId = tools.getUserId(req.headers['authorization']);
+
+            if (userId == -1) {
+                res.status(400).json({
+                    'success': 'false',
+                    'error': 'bad token'
+                });
+                return;
+            }
+
             let payload = {
                 id: userId
             }
@@ -60,17 +68,96 @@ module.exports = class Home {
                         'sucess': 'false',
                         'error': "can't get User"
                     });
+                    return;
                 }
             }.bind(this));
 
-            let charater = new characterModule(this.levelUser);
-            charater.createNewCharacter();
-            console.log(charater);
-            let characterJson = JSON.stringify(charater);
+            let charactersJson = []
+            for (var i = 0; i < 4; i++) {
+                let charater = new characterModule(this.levelUser);
+                charater.createNewCharacter();
+                charactersJson.push(JSON.stringify(charater));
+            }
+
             res.status(200).json({
                 'success': 'true',
-                'result': characterJson
+                'result': charactersJson
             });
+
+        }.bind(this));
+
+        home.get('/profession', function(req, res) {
+
+            let userId = tools.getUserId(req.headers['authorization']);
+
+            if (userId == -1) {
+                res.status(400).json({
+                    'success': 'false',
+                    'error': 'bad token'
+                });
+                return;
+            }
+
+            let response = []
+
+            let payloadId = {
+                "id_user": userId,
+            }
+            this.db.getData("id_blueprint", "user_blueprint", payloadId, function(id_blueprint_user) {
+                if (id_blueprint_user.success) {
+                    let tabIdBlueprintUser = []
+                    let idBlueprintUserTabResult = id_blueprint_user.result
+                    Array.prototype.forEach.call(idBlueprintUserTabResult, idBlueprint => {
+                        tabIdBlueprintUser.push(idBlueprint.id_blueprint)
+                      });
+
+                    let columnArrayUser = ["*"];
+                    let tableArrayUser = ["user_profession", "blueprint", "blueprint_resources"];
+                    let onArrayUser = [
+                          "user_profession.id_profession=blueprint.id_profession",
+                          "blueprint.id=blueprint_resources.id_blueprint"
+                      ];
+
+                    this.db.getDataWithJoinMultipleWhere(columnArrayUser, tableArrayUser, onArrayUser, 0, "blueprint.id", tabIdBlueprintUser, function(resources) {
+                        if (resources.success) {
+                            response.push(resources.result)
+                        }
+                    })
+                }
+
+                let payload = {
+                    "user_profession.id_user": userId,
+                    "blueprint.basic": "0"
+                }
+
+                let paramsWhere = [
+                    "user_profession.id_user="+userId,
+                    "blueprint.basic=0",
+                    "blueprint.level_required<=user_profession.level"
+                ];
+                let columnArray = ["*"];
+                let tableArray = ["user_profession", "blueprint", "blueprint_resources"];
+                let onArray = [
+                    "user_profession.id_profession=blueprint.id_profession",
+                    "blueprint.id=blueprint_resources.id_blueprint"
+                ];
+    
+                this.db.getDataWithJoin(columnArray, tableArray, onArray, 0, paramsWhere, function(data) {
+                    if (data.success) {
+                        response.push(data.result)
+                        res.status(200).json({
+                            'success': 'true',
+                            'result': response
+                        });
+                    } else {
+                        res.status(400).json({
+                            'success': 'false',
+                            'error': data.msg
+                        });
+                        return;
+                    }
+                });
+            }.bind(this));
 
         }.bind(this));
     }
