@@ -13,7 +13,7 @@ public class Login : MonoBehaviour
     public Button registerButton;
     public Text errorText;
 
-    private Dictionary<string, object> response;
+    //private Dictionary<string, object> response;
     private Network network;
 
     void Start()

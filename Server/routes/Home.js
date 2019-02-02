@@ -25,11 +25,11 @@ module.exports = class Home {
             let tableArray = ["user", "user_resource"];
             let onArray = ["user.id=user_resource.id_user"];
 
-            let payload = {
-                "user.id": userId
-            }
+            let payloadArray = [
+                "user.id="+userId
+            ]
 
-            this.db.getDataWithJoin(columnArray, tableArray, onArray, 0, payload, function(data) {
+            this.db.getDataWithJoin(columnArray, tableArray, onArray, 0, payloadArray, function(data) {
                 if (data.success) {
                     res.status(200).json({
                         'success': 'true',
@@ -123,11 +123,6 @@ module.exports = class Home {
                             response.push(resources.result)
                         }
                     })
-                }
-
-                let payload = {
-                    "user_profession.id_user": userId,
-                    "blueprint.basic": "0"
                 }
 
                 let paramsWhere = [

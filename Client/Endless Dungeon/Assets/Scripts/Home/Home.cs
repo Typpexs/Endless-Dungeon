@@ -12,13 +12,17 @@ public class Home : MonoBehaviour
     public Text current_experience;
     public Text rank;
     public Button tavernButton;
+    public Button leaveTavern;
     public GameObject TavernCanvas;
 
     private Network network;
+   // private List<GameObject> canvasList;
 
     void Start()
     {
         network = gameObject.AddComponent<Network>();
+        //canvasList = new List<GameObject>();
+        //canvasList.Add(TavernCanvas);
 
         Debug.Log(NetworkManager.Instance.getToken());
         network.RequestGet(NetworkManager.Instance.getIpServer() + "/home/", (response) =>
@@ -45,10 +49,36 @@ public class Home : MonoBehaviour
         }, NetworkManager.Instance.getToken());
 
         tavernButton.onClick.AddListener(ClickTavern);
+        leaveTavern.onClick.AddListener(ClickLeaveTavern);
     }
+
+    //void Update()
+    //{
+    //    HideIfClickedOutside();
+    //}
+
+    //private void HideIfClickedOutside()
+    //{
+    //    foreach (GameObject canvas in canvasList)
+    //    {
+    //        if (Input.GetMouseButton(0) && canvas.activeSelf &&
+    //            !RectTransformUtility.RectangleContainsScreenPoint(
+    //                canvas.GetComponent<RectTransform>(),
+    //                Input.mousePosition,
+    //                Camera.main))
+    //        {
+    //            canvas.SetActive(false);
+    //        }
+    //    }
+    //}
 
     void ClickTavern()
     {
         TavernCanvas.SetActive(true);
+    }
+
+    void ClickLeaveTavern()
+    {
+        TavernCanvas.SetActive(false);
     }
 }
