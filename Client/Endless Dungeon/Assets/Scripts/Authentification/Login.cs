@@ -13,7 +13,7 @@ public class Login : MonoBehaviour
     public Button registerButton;
     public Text errorText;
 
-    private Dictionary<string, object> response;
+    //private Dictionary<string, object> response;
     private Network network;
 
     void Start()
@@ -31,7 +31,7 @@ public class Login : MonoBehaviour
         formData.Add(new MultipartFormDataSection("password", password.text));
 
         network.Request(NetworkManager.Instance.getIpServer()+"/authentification/signin", (response) => {
-            if (Utils.ChangeObjectStringToString(response["succes"].ToString()) == "true")
+            if (Utils.ChangeObjectStringToString(response["success"].ToString()) == "true")
             {
                 errorText.text = "";
                 string token = Utils.ChangeObjectStringToString(response["token"].ToString());

@@ -38,7 +38,7 @@ public class Register : MonoBehaviour
         formData.Add(new MultipartFormDataSection("password", password.text));
 
         network.Request(NetworkManager.Instance.getIpServer()+"/authentification/signup", (response) => {
-            if (Utils.ChangeObjectStringToString(response["succes"].ToString()) == "true")
+            if (Utils.ChangeObjectStringToString(response["success"].ToString()) == "true")
             {
                 SceneManager.LoadScene("Login");
             }
