@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
 
 public class Home : MonoBehaviour
 {
@@ -14,6 +16,7 @@ public class Home : MonoBehaviour
     public Button tavernButton;
     public Button leaveTavern;
     public GameObject TavernCanvas;
+    public Button dungeonEditorButton;
 
     private Network network;
    // private List<GameObject> canvasList;
@@ -50,6 +53,7 @@ public class Home : MonoBehaviour
 
         tavernButton.onClick.AddListener(ClickTavern);
         leaveTavern.onClick.AddListener(ClickLeaveTavern);
+        dungeonEditorButton.onClick.AddListener(ClickEditor);
     }
 
     //void Update()
@@ -80,5 +84,10 @@ public class Home : MonoBehaviour
     void ClickLeaveTavern()
     {
         TavernCanvas.SetActive(false);
+    }
+
+    void ClickEditor()
+    {
+        SceneManager.LoadScene("Editor");
     }
 }

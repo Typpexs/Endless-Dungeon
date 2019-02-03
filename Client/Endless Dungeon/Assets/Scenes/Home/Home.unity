@@ -227,6 +227,7 @@ MonoBehaviour:
   tavernButton: {fileID: 1459786371}
   leaveTavern: {fileID: 487126347}
   TavernCanvas: {fileID: 114144074}
+  dungeonEditorButton: {fileID: 504439590}
 --- !u!114 &52604541
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -790,7 +791,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.84370875}
   m_AnchorMax: {x: 0.074, y: 0.96447253}
-  m_AnchoredPosition: {x: 0.05999756, y: -0.06501007}
+  m_AnchoredPosition: {x: 0.05999756, y: -0.0650177}
   m_SizeDelta: {x: -0.11999512, y: -0.13000488}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &431346738
@@ -1185,6 +1186,7 @@ GameObject:
   - component: {fileID: 504439587}
   - component: {fileID: 504439589}
   - component: {fileID: 504439588}
+  - component: {fileID: 504439590}
   m_Layer: 5
   m_Name: Town_Sanitarium
   m_TagString: Untagged
@@ -1248,6 +1250,48 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 504439586}
   m_CullTransparentMesh: 0
+--- !u!114 &504439590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504439586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9294118, g: 0.83921576, b: 0.50980395, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 504439588}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!1 &510384023
 GameObject:
   m_ObjectHideFlags: 0
@@ -2447,7 +2491,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0025482178, y: 0.000015258789}
+  m_AnchoredPosition: {x: -0.002532959, y: 0.000015258789}
   m_SizeDelta: {x: -0.0050964355, y: -0.000030517578}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1055810432
@@ -3048,7 +3092,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.082, y: 0.8607638}
   m_AnchorMax: {x: 0.28, y: 0.9482363}
-  m_AnchoredPosition: {x: 0.069992065, y: 0.1450119}
+  m_AnchoredPosition: {x: 0.070007324, y: 0.14501953}
   m_SizeDelta: {x: 0.13999939, y: 0.29000092}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1419635112
