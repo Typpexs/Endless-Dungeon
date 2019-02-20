@@ -5,11 +5,12 @@
  */
 public class Mana_class : Basic_class
 {
-    protected ushort manaMax;
-    protected ushort spellPower;
+    public ushort manaMax { get; }
 
-    public Mana_class() : base()
+    public Mana_class(ushort[] initStatArray) : base(initStatArray)
     {
+        manaMax = intelligence;
+        manaMax *= 3;
     }
 
     public virtual ushort manaRegen()

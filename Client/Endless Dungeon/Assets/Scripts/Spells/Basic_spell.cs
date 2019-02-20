@@ -1,10 +1,18 @@
-﻿/*
+﻿using UnityEngine;
+/*
  * This class is the mother of all spells.
  * Every spell in the game will derived from this class
  */
 
 public class Basic_spell
 {
+    public enum SpellPosition
+    {
+        BASIC = 0,
+        FIRST = 1,
+        SECOND = 2,
+        THIRD = 3
+    };
     public enum SpellTypes
     {
         MAGIC = 0,
@@ -19,7 +27,7 @@ public class Basic_spell
     };
 
     protected string    description;
-    protected string    exactDescription;
+    protected string    detailledDescription;
     protected string    spellName;
     protected double    damage;
     protected byte      spellCost;
@@ -34,7 +42,7 @@ public class Basic_spell
     {
     }
 
-    public virtual void update()
+    public virtual void update(Basic_class player, byte level)
     {
     }
 }
