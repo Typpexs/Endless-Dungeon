@@ -10,7 +10,7 @@ public class Mage_character : Character_template
 
 
     // A CHANGER APRES LES TESTS
-    public ushort currentHealth;
+    private ushort currentHealth;
     private ushort maxHealth;
 
     void Start()
@@ -23,6 +23,7 @@ public class Mage_character : Character_template
         maxHealth = template.stamina;
         maxHealth *= 3;
         currentHealth = maxHealth;
+        speedForTurn = 0;
     }
     
     void Update()

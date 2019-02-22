@@ -8,4 +8,5 @@
 public static class Constants
 {
     public const int numberOfSpellInActionBar = 1;
+    public const byte speedForTakingATurn = 100;
 }
