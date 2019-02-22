@@ -19,4 +19,18 @@ public class Character_template : MonoBehaviour
         }
         return false;
     }
+
+    public string getSpellName(int spellIndex)
+    {
+        return (spellsInActionBar[spellIndex].getSpellName());
+    }
+
+    public bool hasSpellIn(int spellIndex)
+    {
+        if (spellIndex + 1 > Constants.numberOfSpellInActionBar)
+            return false;
+        if (spellsInActionBar[spellIndex] != null)
+            return true;
+        return false;
+    }
 }

@@ -26,16 +26,21 @@ public class Basic_spell
         ARCANE = 2
     };
 
-    protected string    description;
-    protected string    detailledDescription;
-    protected string    spellName;
-    protected double    damage;
-    protected byte      spellCost;
-    protected SpellTypes spellType;
-    protected SpellElement spellElem;
+    protected string        description;
+    protected string        detailledDescription;
+    protected string        spellName;
+    protected double        damage;
+    protected byte          spellCost;
+    protected SpellTypes    spellType;
+    protected SpellElement  spellElem;
 
-    public Basic_spell()
+    public Basic_spell(byte cost, string name, string _description, SpellTypes type, SpellElement elem)
     {
+        spellCost = cost;
+        spellName = name;
+        description = _description;
+        spellType = type;
+        spellElem = elem;
     }
 
     public virtual void use()
@@ -44,5 +49,10 @@ public class Basic_spell
 
     public virtual void update(Basic_class player, byte level)
     {
+    }
+
+    public string getSpellName()
+    {
+        return spellName;
     }
 }

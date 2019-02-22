@@ -7,13 +7,10 @@ using UnityEngine;
  */
 public class Spell_Fireball : Basic_spell
 {
-    public Spell_Fireball() : base()
+    public Spell_Fireball() : base(10, "Boule de feu",
+                                    "Lance une boule de feu qui inflige des points de dégâts de Feu.",
+                                    SpellTypes.MAGIC, SpellElement.FIRE)
     {
-        spellName = "Boule de feu";
-        spellCost = 10;
-        description = "Lance une boule de feu qui inflige des points de dégâts de Feu.";
-        spellType = SpellTypes.MAGIC;
-        spellElem = SpellElement.FIRE;
     }
 
     public override void use()
