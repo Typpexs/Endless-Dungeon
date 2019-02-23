@@ -13,9 +13,10 @@ public class Spell_Fireball : Basic_spell
     {
     }
 
-    public override void use()
+    public override void use(GameObject target)
     {
-
+        target.GetComponent<Character_template>().TakeDamage((ushort)damage);
+        Debug.Log("The player " + target.name + " a pris " + (ushort)damage + " points de dégats");
     }
 
     /*

@@ -5,14 +5,6 @@ using UnityEngine.UI;
 
 public class Mage_character : Character_template
 {
-
-    public Slider healthBar;
-
-
-    // A CHANGER APRES LES TESTS
-    private ushort currentHealth;
-    private ushort maxHealth;
-
     void Start()
     {
         template = new Mage_template(new ushort[] 
@@ -24,15 +16,5 @@ public class Mage_character : Character_template
         maxHealth *= 3;
         currentHealth = maxHealth;
         speedForTurn = 0;
-    }
-    
-    void Update()
-    {
-        healthBar.value = (currentHealth / maxHealth) * 100;
-    }
-
-    void TakeDamage(ushort dmg)
-    {
-        currentHealth -= dmg;
     }
 }

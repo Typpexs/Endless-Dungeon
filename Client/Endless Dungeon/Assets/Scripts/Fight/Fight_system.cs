@@ -8,21 +8,30 @@ public class Fight_system : MonoBehaviour
     public GameObject friendParty;
     public GameObject enemyParty;
     public GameObject spellsCanvas;
+    public GameObject targetButtonTemporary;
     public Sprite     defaultButtonSprite;
 
+    private Character_template charPlaying;
     private GameObject spellTarget;
     private int        spellToUse;
 
     void Start()
     {
-        Debug.Log(friendParty.transform.childCount);
         for (int i = 0; i < enemyParty.transform.childCount; ++i)
         {
             var enemyCharacter = enemyParty.transform.GetChild(i);
-            var button = enemyCharacter.GetComponent<Button>();
+            var enemyCharacterButton = targetButtonTemporary.transform.GetChild(i);
+            var button = enemyCharacterButton.GetComponent<Button>();
+            var tmpSpellTarget = enemyCharacter.gameObject;
 
-            Debug.Log(button);
-            button.onClick.AddListener(() => whichTarget(enemyCharacter.gameObject));
+            button.onClick.AddListener(() => whichTarget(tmpSpellTarget));
+        }
+        for (int i = 0; i < spellsCanvas.transform.childCount; ++i)
+        {
+            var spellOnCanvas = spellsCanvas.transform.GetChild(i);
+            var spellIndex = i;
+
+            spellOnCanvas.GetComponent<Button>().onClick.AddListener(() => whichSpellToUse(spellIndex));
         }
     }
 
@@ -34,8 +43,9 @@ public class Fight_system : MonoBehaviour
 
     void whichTarget(GameObject target)
     {
-        Debug.Log("Le spell " + spellToUse + " est lancé sur la cible " + target.name);
+        Debug.Log("Le spell " + spellToUse + " est lancé sur la cible " + target.name + " par " + charPlaying.name + ".");
         spellTarget = target;
+        charPlaying.useSpell(spellToUse, target);
     }
 
     /*
@@ -52,7 +62,6 @@ public class Fight_system : MonoBehaviour
             {
                 int spellIndex = i;
                 image.sprite = Resources.Load("Images/Spells/" + characterPlaying.getSpellName(i), typeof(Sprite)) as Sprite;
-                spellOnCanvas.GetComponent<Button>().onClick.AddListener(() => whichSpellToUse(spellIndex));
             }
             else
                 image.sprite = defaultButtonSprite;
@@ -61,6 +70,7 @@ public class Fight_system : MonoBehaviour
 
     void givePlayerATurn(Character_template player)
     {
+        charPlaying = player;
         changeSpellCanvas(player);
     }
 

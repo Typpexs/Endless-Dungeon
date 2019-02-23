@@ -43,7 +43,7 @@ public class Basic_spell
         spellElem = elem;
     }
 
-    public virtual void use()
+    public virtual void use(GameObject target)
     {
     }
 
