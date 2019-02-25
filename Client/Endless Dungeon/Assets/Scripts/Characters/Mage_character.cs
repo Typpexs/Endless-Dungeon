@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class Mage_character : Character_template
 {
-    void Start()
+    void Awake()
     {
         template = new Mage_template(new ushort[] 
             { 10, 2, 3, 10, 1, 10, 50, 6, 5, 0, 0, 1});
@@ -17,4 +17,5 @@ public class Mage_character : Character_template
         currentHealth = maxHealth;
         speedForTurn = 0;
     }
+
 }

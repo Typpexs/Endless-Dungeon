@@ -11,7 +11,7 @@ public class NetworkManager : Singleton<NetworkManager>
     protected override void init()
     {
         DontDestroyOnLoad(this.gameObject);
-       // IpServer = "http://192.168.0.22:3000";
+        // IpServer = "http://192.168.0.22:3000";
         IpServer = "http://192.168.1.67:3000";
         token = "";
     }

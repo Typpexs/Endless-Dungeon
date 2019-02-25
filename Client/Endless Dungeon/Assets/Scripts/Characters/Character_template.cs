@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[DisallowMultipleComponent]
+[RequireComponent(typeof(SpriteRenderer))]
 public class Character_template : MonoBehaviour
 {
     protected Basic_spell[] spellsInActionBar = new Basic_spell[Constants.numberOfSpellInActionBar];
@@ -15,11 +17,19 @@ public class Character_template : MonoBehaviour
     protected ushort currentHealth;
     protected ushort maxHealth;
 
+    SpriteRenderer srend;
+
+    private void Awake()
+    {
+        srend = GetComponent<SpriteRenderer>();
+    }
+
     public void Update()
     {
         if (currentHealth == 0)
         {
             healthBar.value = 0;
+            Destroy(gameObject);
             gameObject.SetActive(false);
             healthBar.gameObject.SetActive(false);
         }
@@ -65,5 +75,10 @@ public class Character_template : MonoBehaviour
         }
         else
             currentHealth -= dmg;
+    }
+
+    void OnMouseDown()
+    {
+        GameObject.Find("Fighters").GetComponent<Fight_system>().whichTarget(gameObject);
     }
 }

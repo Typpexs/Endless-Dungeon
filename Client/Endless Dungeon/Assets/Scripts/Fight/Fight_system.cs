@@ -11,21 +11,25 @@ public class Fight_system : MonoBehaviour
     public GameObject targetButtonTemporary;
     public Sprite     defaultButtonSprite;
 
+    public GameObject target;
+
     private Character_template charPlaying;
+
     private GameObject spellTarget;
     private int        spellToUse;
 
     void Start()
     {
-        for (int i = 0; i < enemyParty.transform.childCount; ++i)
-        {
-            var enemyCharacter = enemyParty.transform.GetChild(i);
-            var enemyCharacterButton = targetButtonTemporary.transform.GetChild(i);
-            var button = enemyCharacterButton.GetComponent<Button>();
-            var tmpSpellTarget = enemyCharacter.gameObject;
+        //for (int i = 0; i < enemyParty.transform.childCount; ++i)
+        //{
+        //    var enemyCharacter = enemyParty.transform.GetChild(i);
+        //    var enemyCharacterButton = targetButtonTemporary.transform.GetChild(i);
+        //    var button = enemyCharacterButton.GetComponent<Button>();
+        //    var tmpSpellTarget = enemyCharacter.gameObject;
 
-            button.onClick.AddListener(() => whichTarget(tmpSpellTarget));
-        }
+        //    Debug.Log("ICI LOL");
+        //    button.onClick.AddListener(() => whichTarget(tmpSpellTarget));
+        //}
         for (int i = 0; i < spellsCanvas.transform.childCount; ++i)
         {
             var spellOnCanvas = spellsCanvas.transform.GetChild(i);
@@ -33,6 +37,8 @@ public class Fight_system : MonoBehaviour
 
             spellOnCanvas.GetComponent<Button>().onClick.AddListener(() => whichSpellToUse(spellIndex));
         }
+
+        WhichPlayerTurn();
     }
 
     void whichSpellToUse(int spellIndex)
@@ -41,11 +47,12 @@ public class Fight_system : MonoBehaviour
         spellToUse = spellIndex;
     }
 
-    void whichTarget(GameObject target)
+    public void whichTarget(GameObject target)
     {
         Debug.Log("Le spell " + spellToUse + " est lancé sur la cible " + target.name + " par " + charPlaying.name + ".");
         spellTarget = target;
         charPlaying.useSpell(spellToUse, target);
+        WhichPlayerTurn();
     }
 
     /*
@@ -74,17 +81,28 @@ public class Fight_system : MonoBehaviour
         changeSpellCanvas(player);
     }
 
-    void Update()
+    void WhichPlayerTurn()
     {
-        for (int i = 0; i < friendParty.transform.childCount; ++i)
+        bool isNewTurn = false;
+        while (!isNewTurn)
         {
-            var unitToCheck = friendParty.transform.GetChild(i).GetComponent<Character_template>();
-            var isHeGettingTurn = unitToCheck.takeTurn();
-
-            if (isHeGettingTurn)
+            for (int i = 0; i < friendParty.transform.childCount; ++i)
             {
-                givePlayerATurn(unitToCheck);
+                var unitToCheck = friendParty.transform.GetChild(i).GetComponent<Character_template>();
+                var isHeGettingTurn = unitToCheck.takeTurn();
+
+                if (isHeGettingTurn)
+                {
+                    givePlayerATurn(unitToCheck);
+                    isNewTurn = true;
+                    break;
+                }
             }
         }
     }
+
+    //void Update()
+    //{
+        
+    //}
 }
