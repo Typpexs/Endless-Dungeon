@@ -44,6 +44,30 @@ module.exports = class Database {
         });
     }
 
+    update(table, values, callback) {
+        for (let i=0; i < values.length; i++) {
+
+            let stringWhere = "";
+            for (let j=0; j < values[i].where.length-1; j++) {
+                stringWhere += values[i].where[j].whereKey + "=" + values[i].where[j].whereValue + " AND ";
+            }
+            stringWhere += values[i].where[values[i].where.length-1].whereKey + "=" + values[i].where[values[i].where.length-1].whereValue;
+
+            var sqlUpdate = "UPDATE " + table + " SET " + values[i].key + "=" + values[i].value + " WHERE " + stringWhere;
+            this.connection.query(sqlUpdate, function(err, result) {
+                let tabResult = {};
+                if (err) {
+                    tabResult["success"] = false;
+                    tabResult["msg"] = "update failed";
+                    callback(tabResult);
+                } else if (i == values.length-1) {
+                    tabResult["success"] = true;
+                    callback(tabResult);
+                }
+            }.bind(i));
+        }
+    }
+
     checkLogin(params, callback) {
         var sqlLogin = "SELECT * FROM logs WHERE email = ?";
         this.connection.query(sqlLogin, params.email, function(err, result) {
@@ -120,8 +144,6 @@ module.exports = class Database {
     getDataMultipleWhere(column, table, columnWhere, params, callback) {
         var sqlData = "SELECT "+column+" FROM "+table+" WHERE "+columnWhere+" in ("+params.toString()+")";
         this.connection.query(sqlData, params, function(err, result) {
-            console.log(sqlData)
-            console.log(params)
             let tabResult = {};
             if (err || !result[0]) {
                 tabResult["success"] = false;
@@ -161,7 +183,6 @@ module.exports = class Database {
             let tabResult = {};
             if (err || !result || !result[0]) {
                 tabResult["success"] = false;
-                console.log(err);
                 tabResult["msg"] = "join failed";
             } else {
                 tabResult["success"] = true;
@@ -183,7 +204,6 @@ module.exports = class Database {
             let tabResult = {};
             if (err || !result || !result[0]) {
                 tabResult["success"] = false;
-                console.log(err);
                 tabResult["msg"] = "join failed";
             } else {
                 tabResult["success"] = true;

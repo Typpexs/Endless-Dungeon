@@ -12,6 +12,9 @@ var Home = require('./routes/Home');
 let home = new Home(db);
 app.use('/home', home.routes);
 
+var Editor = require('./routes/Editor');
+let editor = new Editor(db);
+app.use('/editor', editor.routes);
 
 //Toujours mettre a la fin pour les routes non definies
 app.get('*', function(req, res){

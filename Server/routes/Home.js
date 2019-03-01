@@ -21,6 +21,14 @@ module.exports = class Home {
         home.get('/', function(req, res) {
             let userId = tools.getUserId(req.headers['authorization']);
 
+            if (userId == -1) {
+                res.status(400).json({
+                    'success': 'false',
+                    'error': 'bad token'
+                });
+                return;
+            }
+
             let columnArray = ["*"];
             let tableArray = ["user", "user_resource"];
             let onArray = ["user.id=user_resource.id_user"];
