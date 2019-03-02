@@ -141,6 +141,43 @@ module.exports = class Database {
         });
     }
 
+    getDataWithEmpty(column, table, params, callback) {
+        let stringWhere = "";
+
+        for (let i=0; i < Object.entries(params).length-1; i++) {
+            stringWhere += Object.entries(params)[i][0]+"="+Object.entries(params)[i][1]+ " AND "
+        }
+
+        stringWhere += Object.entries(params)[Object.entries(params).length-1][0]+"="+Object.entries(params)[Object.entries(params).length-1][1]
+        var sqlData = "SELECT "+column+" FROM "+table+" WHERE "+stringWhere;
+        this.connection.query(sqlData, params, function(err, result) {
+            let tabResult = {};
+            if (err) {
+                tabResult["success"] = false;
+                tabResult["msg"] = err;
+            } else {
+                tabResult["success"] = true;
+                tabResult["result"] = result;
+            }
+            callback(tabResult);
+        });
+    }
+
+    getDataWithoutParams(column, table, callback) {
+        var sqlData = "SELECT "+column+" FROM "+table;
+        this.connection.query(sqlData, function(err, result) {
+            let tabResult = {};
+            if (err || !result[0]) {
+                tabResult["success"] = false;
+                tabResult["msg"] = err;
+            } else {
+                tabResult["success"] = true;
+                tabResult["result"] = result;
+            }
+            callback(tabResult);
+        });
+    }
+
     getDataMultipleWhere(column, table, columnWhere, params, callback) {
         var sqlData = "SELECT "+column+" FROM "+table+" WHERE "+columnWhere+" in ("+params.toString()+")";
         this.connection.query(sqlData, params, function(err, result) {
