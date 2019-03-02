@@ -13,6 +13,8 @@ editor.use(bodyParser.urlencoded({ extended: true }));
 module.exports = class Editor {
     constructor(db = null) {
         this.db = db;
+        // lvl 1-10 -- 11-20 -- 21-30
+        this.costByLevelMob = [0,20,80,160]
         this.initRoutes();
     }
 
@@ -442,6 +444,98 @@ module.exports = class Editor {
             }.bind(this));
 
         }.bind(this));
+
+        editor.post('/shopMobBuy', multipartMiddleware, function(req, res) {
+            let userId = tools.getUserId(req.headers['authorization']);
+
+            if (userId == -1) {
+                res.status(400).json({
+                    'success': 'false',
+                    'error': 'bad token'
+                });
+                return;
+            }
+
+            let params = req.body;
+            let payloadGetMoney = {
+                id_user: userId
+            }
+            this.db.getDataOneColumn("gold", "user_resource", payloadGetMoney, function(money) {
+                if (money.success){
+                    if (money.result.gold >= this.costByLevelMob[params.idLvlMob]) {
+                        let values = []
+                        let tab = {}
+                        tab["key"] = "gold"
+                        tab["value"] = money.result.gold - this.costByLevelMob[params.idLvlMob]
+                        let tabWhere = [
+                            {whereKey: "id_user", whereValue: userId}
+                        ]
+                        tab["where"] = tabWhere
+                        values.push(tab)
+                        this.db.update("user_resource", values, function(updateMoney) {
+                            if (updateMoney.success) {
+                                let character = new characterModule(tools.generateRandomLvl((params.idLvlMob*10-9), (params.idLvlMob*10)))
+                                character.createNewCharacter();
+                                let payloadCharacter = {
+                                    id_user: userId,
+                                    id_classe: character.classe,
+                                    name: character.name,
+                                    level: character.level,
+                                    hp_max: character.hpMax,
+                                    mana_max: character.manaMax,
+                                    stamina: character.principaleStats.stamina,
+                                    armor: character.principaleStats.armor,
+                                    strength: character.principaleStats.strength,
+                                    dexterity: character.principaleStats.dexterity,
+                                    intelligence: character.principaleStats.intelligence,
+                                    speed: character.principaleStats.speed,
+                                    critical_rate: character.secondaryStats.criticalRate,
+                                    critical_damage: character.secondaryStats.criticalDamage,
+                                    spirit: character.secondaryStats.spirit,
+                                    touch: character.secondaryStats.touch,
+                                    dodge: character.secondaryStats.dodge,
+                                    block: character.secondaryStats.block,
+                                    resistance: character.secondaryStats.resistance
+                                }
+                                this.db.insert("mob", payloadCharacter, function(mobInserted) {
+                                    if (mobInserted.success) {
+                                        res.status(200).json({
+                                            'success': true
+                                        });
+                                    } else {
+                                        res.status(400).json({
+                                            'success': 'false',
+                                            'error': 'can t update moneyyy'
+                                        });
+                                        return;                                     
+                                    }
+                                });                        
+                            } else {
+                                res.status(400).json({
+                                    'success': 'false',
+                                    'error': 'can t update moneyyy'
+                                });
+                                return;
+                            } 
+                        }.bind(this));
+                    } else {
+                        res.status(200).json({
+                            'success': 'false',
+                            'error': 'not enouth minerals'
+                        });
+                        return;                        
+                    }
+                } else {
+                    res.status(400).json({
+                        'success': 'false',
+                        'error': 'can t get user'
+                    });
+                    return;
+                }
+            }.bind(this));
+            
+        }.bind(this));
+
     }
 
 }
