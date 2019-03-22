@@ -53,37 +53,37 @@ module.exports = class Editor {
 
         }.bind(this));
 
-        editor.get('/mob', function(req, res) {
-            let userId = tools.getUserId(req.headers['authorization']);
+        // editor.get('/mob', function(req, res) {
+        //     let userId = tools.getUserId(req.headers['authorization']);
 
-            if (userId == -1) {
-                res.status(400).json({
-                    'success': 'false',
-                    'error': 'bad token'
-                });
-                return;
-            }
+        //     if (userId == -1) {
+        //         res.status(400).json({
+        //             'success': 'false',
+        //             'error': 'bad token'
+        //         });
+        //         return;
+        //     }
 
-            let payload = {
-                id_user: userId
-            }
+        //     let payload = {
+        //         id_user: userId
+        //     }
 
-            this.db.getData("*", "mob_inventory", payload, function(mobs) {
-                if (mobs.success) {
-                    res.status(200).json({
-                        'success': 'true',
-                        'result': mobs.result
-                    });
-                } else {
-                    res.status(400).json({
-                        'success': 'false',
-                        'error': "can't get mobs"
-                    });
-                    return;
-                }
-            });
+        //     this.db.getData("*", "mob", payload, function(mobs) {
+        //         if (mobs.success) {
+        //             res.status(200).json({
+        //                 'success': 'true',
+        //                 'result': mobs.result
+        //             });
+        //         } else {
+        //             res.status(400).json({
+        //                 'success': 'false',
+        //                 'error': "can't get mobs"
+        //             });
+        //             return;
+        //         }
+        //     });
 
-        }.bind(this));
+        // }.bind(this));
 
         editor.get('/trap', function(req, res) {
             let userId = tools.getUserId(req.headers['authorization']);
@@ -322,129 +322,52 @@ module.exports = class Editor {
 
         editor.post('/shopTrapBuy', multipartMiddleware, function(req, res) {
             let userId = tools.getUserId(req.headers['authorization']);
-
+        
             if (userId == -1) {
-                res.status(400).json({
+                return res.status(400).json({
                     'success': 'false',
                     'error': 'bad token'
                 });
-                return;
             }
+        
+            const trap_id = parseInt(req.body.id);
+            const trapError = "can't find trap"
 
-            let params = req.body;
-            let payload = {
-                id: userId
-            }
-            this.db.getDataOneColumn("rooms", "user", payload, function(nbRooms) {
-                if (nbRooms.success) {
-                    let payloadTrap = {
-                        id_user: userId,
-                        id_trap: parseInt(params.id)
-                    }
+            Promise.all([
+                dbRequest(this.db, "getDataOneColumn", ["rooms", "user", { id: userId }], "can't get user"),
+                dbRequest(this.db, "getDataWithEmpty", ["*", "user_trap", { id_user: userId, id_trap: trap_id }], trapError),
+                dbRequest(this.db, "getDataOneColumn", ["cost", "trap", { id: trap_id }], trapError),
+                dbRequest(this.db, "getDataOneColumn", ["gold", "user_resource", { id_user: userId }], "can't find resource player")
+            ])
+            .then((rooms) => {
+        
+                const cost = rooms[2].result.cost,
+                    gold = rooms[3].result.gold,
+                    fundError = "not enouth minerals"
 
-                    this.db.getDataWithEmpty("*", "user_trap", payloadTrap, function(nbrTraps) {
-                        if (nbrTraps.success) {
-                            let nbrAchat = (nbRooms.result.rooms - 1) - nbrTraps.result.length;
-
-                            if (nbrAchat > 0) {
-                                let payloadGetCost = {
-                                    id: parseInt(params.id)
-                                }
-                                this.db.getDataOneColumn("cost", "trap", payloadGetCost, function(cost) {
-                                    if (cost.success) {
-                                        let payloadGetMoney = {
-                                            id_user: userId
-                                        }
-                                        this.db.getDataOneColumn("gold", "user_resource", payloadGetMoney, function(money) {
-                                            if (money.success) {
-                                                if (money.result.gold >= cost.result.cost) {
-                                                    let values = []
-                                                    let tab = {}
-                                                    tab["key"] = "gold"
-                                                    tab["value"] = money.result.gold - cost.result.cost
-                                                    let tabWhere = [
-                                                        {whereKey: "id_user", whereValue: userId}
-                                                    ]
-                                                    tab["where"] = tabWhere
-                                                    values.push(tab)
-                                                    this.db.update("user_resource", values, function(updateMoney) {
-                                                        if (updateMoney.success) {
-                                                            let payloadInsertTrapForUser = {
-                                                                id_user: userId,
-                                                                id_trap: parseInt(params.id)
-                                                            }
-                                                            this.db.insert("user_trap", payloadInsertTrapForUser, function(isAdded) {
-                                                                if (isAdded.success) {
-                                                                    res.status(200).json({
-                                                                        'success': 'true'
-                                                                    })
-                                                                } else {
-                                                                    res.status(400).json({
-                                                                        'success': 'false',
-                                                                        'error': isAdded.msg
-                                                                    })
-                                                                    return;
-                                                                }
-                                                            });
-                                                        } else {
-                                                            res.status(400).json({
-                                                                'success': 'false',
-                                                                'error': 'not enouth minerals'
-                                                            })
-                                                            return;                                                            
-                                                        }
-                                                    }.bind(this));
-
-                                                } else {
-                                                    res.status(400).json({
-                                                        'success': 'false',
-                                                        'error': 'not enouth minerals'
-                                                    })
-                                                    return;
-                                                }
-                                            } else {
-                                                res.status(400).json({
-                                                    'success': 'false',
-                                                    'error': 'cant find resource player'
-                                                })
-                                                return;
-                                            }
-                                        }.bind(this));
-                                    } else {
-                                        res.status(400).json({
-                                            'success': 'false',
-                                            'error': 'can t find trap'
-                                        });
-                                        return;
-                                    }
-                                }.bind(this));
-                            } else {
-                                res.status(200).json({
-                                    'success': 'false',
-                                    'error': 'cant buy more traps',
-                                });
-                                return;
-                            }
-
-                        } else {
-                            res.status(400).json({
-                                'success': 'false',
-                                'error': 'can t find trap'
-                            });
-                            return;
-                        }
-                    }.bind(this));
-                } else {
-                    res.status(400).json({
-                        'success': 'false',
-                        'error': 'can t get user'
-                    });
-                    return;
+                if (((rooms[0].result.rooms - 1) - rooms[1].result.length) <= 0) {
+                    return Promise.reject("can't buy more traps");
                 }
-            }.bind(this));
+                else if (gold < cost)  {
+                    return Promise.reject(fundError);
+                }
+                let values = []
+                let tab = {
+                    key: 'gold',
+                    value: gold - cost,
+                    where: [{whereKey: "id_user", whereValue: userId}]
+                }
+                values.push(tab)
 
+                return dbRequest(this.db, "update", ["user_resource", values], fundError)
+            }) 
+            .then(() => dbRequest(this.db, "insert", ["user_trap", { id_user: userId, id_trap: trap_id}]))
+            .then(() => res.status(200).json({'success': 'true' }))
+            .catch((errorMessage) => {
+                res.status(400).json({ 'success': 'false', 'error': errorMessage })
+            })
         }.bind(this));
-
+        
         editor.post('/shopMobBuy', multipartMiddleware, function(req, res) {
             let userId = tools.getUserId(req.headers['authorization']);
 
@@ -499,17 +422,42 @@ module.exports = class Editor {
                                 }
                                 this.db.insert("mob", payloadCharacter, function(mobInserted) {
                                     if (mobInserted.success) {
-                                        res.status(200).json({
-                                            'success': true
-                                        });
+
+                                        this.db.getData("id", "mob", {id_user: userId}, function(idMob) {
+                                            if (idMob.success) {
+                                                let payloadCharacterInventory = {
+                                                    id_user: userId,
+                                                    id_mob: idMob.result[idMob.result.length-1].id
+                                                }
+                                                this.db.insert("mob_inventory", payloadCharacterInventory, function(inventory) {
+                                                    if (inventory.success) {
+                                                        res.status(200).json({
+                                                            'success': true
+                                                        });
+                                                    } else {
+                                                        res.status(400).json({
+                                                            'success': 'false',
+                                                            'error': 'can t insert inventory',
+                                                        });
+                                                        return;                                                        
+                                                    }
+                                                });
+                                            } else {
+                                                res.status(400).json({
+                                                    'success': 'false',
+                                                    'error': 'can t get id mob'
+                                                });
+                                                return;
+                                            }
+                                        }.bind(this));
                                     } else {
                                         res.status(400).json({
                                             'success': 'false',
-                                            'error': 'can t update moneyyy'
+                                            'error': 'can t insert mob'
                                         });
                                         return;                                     
                                     }
-                                });                        
+                                }.bind(this));                        
                             } else {
                                 res.status(400).json({
                                     'success': 'false',
@@ -535,6 +483,19 @@ module.exports = class Editor {
             }.bind(this));
             
         }.bind(this));
+
+        function dbRequest(db, func, params, errorMessage) {
+            return new Promise((resolve, reject) => {
+        
+                params.push((response) => {
+                    if (response.success) {
+                        return resolve(response)
+                    }
+                    return reject(errorMessage ? errorMessage : response.msg);
+                })
+                db[func].apply(db, params)
+            })
+        }
 
     }
 

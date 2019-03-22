@@ -16,6 +16,10 @@ var Editor = require('./routes/Editor');
 let editor = new Editor(db);
 app.use('/editor', editor.routes);
 
+var CharacterRoutes = require('./routes/CharacterRoutes');
+let characterRoutes = new CharacterRoutes(db);
+app.use('/character', characterRoutes.routes);
+
 //Toujours mettre a la fin pour les routes non definies
 app.get('*', function(req, res){
    res.send('Sorry, this is an invalid URL.');

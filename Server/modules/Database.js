@@ -46,13 +46,11 @@ module.exports = class Database {
 
     update(table, values, callback) {
         for (let i=0; i < values.length; i++) {
-
             let stringWhere = "";
             for (let j=0; j < values[i].where.length-1; j++) {
                 stringWhere += values[i].where[j].whereKey + "=" + values[i].where[j].whereValue + " AND ";
             }
             stringWhere += values[i].where[values[i].where.length-1].whereKey + "=" + values[i].where[values[i].where.length-1].whereValue;
-
             var sqlUpdate = "UPDATE " + table + " SET " + values[i].key + "=" + values[i].value + " WHERE " + stringWhere;
             this.connection.query(sqlUpdate, function(err, result) {
                 let tabResult = {};
@@ -112,7 +110,16 @@ module.exports = class Database {
     }
 
     getDataOneColumn(column, table, params, callback) {
-        var sqlData = "SELECT "+column+" FROM "+table+" WHERE ?";
+//        var sqlData = "SELECT "+column+" FROM "+table+" WHERE ?";
+        let stringWhere = "";
+
+        for (let i=0; i < Object.entries(params).length-1; i++) {
+            stringWhere += Object.entries(params)[i][0]+"="+Object.entries(params)[i][1]+ " AND "
+        }
+
+        stringWhere += Object.entries(params)[Object.entries(params).length-1][0]+"="+Object.entries(params)[Object.entries(params).length-1][1]
+        var sqlData = "SELECT "+column+" FROM "+table+" WHERE "+stringWhere;  
+
         this.connection.query(sqlData, params, function(err, result) {
             let tabResult = {};
             if (err || !result[0]) {
@@ -126,8 +133,31 @@ module.exports = class Database {
         });
     }
 
+    getDataWithIn(column, table, params, callback) {
+        var sqlData = "SELECT "+column+" FROM "+table+" WHERE "+ params;
+        this.connection.query(sqlData, function(err, result) {
+            let tabResult = {};
+            if (err || !result[0]) {
+                tabResult["success"] = false;
+                tabResult["msg"] = err;
+            } else {
+                tabResult["success"] = true;
+                tabResult["result"] = result;
+            }
+            callback(tabResult);
+        });
+    }
+
     getData(column, table, params, callback) {
-        var sqlData = "SELECT "+column+" FROM "+table+" WHERE ?";
+        // var sqlData = "SELECT "+column+" FROM "+table+" WHERE ?";
+        let stringWhere = "";
+
+        for (let i=0; i < Object.entries(params).length-1; i++) {
+            stringWhere += Object.entries(params)[i][0]+"="+Object.entries(params)[i][1]+ " AND "
+        }
+
+        stringWhere += Object.entries(params)[Object.entries(params).length-1][0]+"="+Object.entries(params)[Object.entries(params).length-1][1]
+        var sqlData = "SELECT "+column+" FROM "+table+" WHERE "+stringWhere;
         this.connection.query(sqlData, params, function(err, result) {
             let tabResult = {};
             if (err || !result[0]) {
