@@ -52,15 +52,26 @@ module.exports = class Authentification {
                             }
                             this.db.insert("user", payloadUser, function(isUserCreated) {
                                 if (isUserCreated.success) {
-                                    res.status(200).json({
-                                        'success': 'true'
+                                    let payloadInventory = {
+                                        id_user: isIdGet.id
+                                    }
+                                    this.db.insert("user_inventory", payloadInventory, function(isInventoryCreated) {
+                                        if (isInventoryCreated.success) {
+                                            res.status(200).json({
+                                                'success': 'true'
+                                            });
+                                        } else {
+                                            res.status(400).json(
+                                                {'success' : 'false',
+                                                'error' : 'Create user failed'});                                            
+                                        }
                                     });
                                 } else {
                                     res.status(400).json(
                                         {'success' : 'false',
                                         'error' : 'Create user failed'});                                                                
                                 }
-                            });
+                            }.bind(this));
                         } else {
                             res.status(400).json(
                                 {'success' : 'false',

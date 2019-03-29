@@ -193,6 +193,35 @@ module.exports = class Database {
         });
     }
 
+    // BETWEEN EN DERNIER DES WHERE
+    getDataWithEmptyBetween(column, table, params, callback) {
+        let stringWhere = "";
+
+        for (let i=0; i < Object.entries(params).length-1; i++) {
+            if (Object.entries(params)[i][1].localeCompare("IS NOT NULL") == 0) {
+                stringWhere += Object.entries(params)[i][0]+" "+Object.entries(params)[i][1]+ " AND ";
+            } else if (Object.entries(params)[i][1].split(' ')[0].localeCompare("NOT") == 0) {
+                stringWhere += Object.entries(params)[i][0]+"!="+Object.entries(params)[i][1].split(' ')[1]+ " AND ";
+            } else {
+                stringWhere += Object.entries(params)[i][0]+"="+Object.entries(params)[i][1]+ " AND ";
+            }
+        }
+
+        stringWhere += Object.entries(params)[Object.entries(params).length-1][0]+" BETWEEN "+Object.entries(params)[Object.entries(params).length-1][1]
+        var sqlData = "SELECT "+column+" FROM "+table+" WHERE "+stringWhere;
+        this.connection.query(sqlData, params, function(err, result) {
+            let tabResult = {};
+            if (err) {
+                tabResult["success"] = false;
+                tabResult["msg"] = err;
+            } else {
+                tabResult["success"] = true;
+                tabResult["result"] = result;
+            }
+            callback(tabResult);
+        });
+    }
+
     getDataWithoutParams(column, table, callback) {
         var sqlData = "SELECT "+column+" FROM "+table;
         this.connection.query(sqlData, function(err, result) {

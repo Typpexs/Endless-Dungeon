@@ -20,6 +20,10 @@ var CharacterRoutes = require('./routes/CharacterRoutes');
 let characterRoutes = new CharacterRoutes(db);
 app.use('/character', characterRoutes.routes);
 
+var MatchMakingRoutes = require('./routes/MatchMaking');
+let matchMaking = new MatchMakingRoutes(db);
+app.use('/matchMaking', matchMaking.routes);
+
 //Toujours mettre a la fin pour les routes non definies
 app.get('*', function(req, res){
    res.send('Sorry, this is an invalid URL.');

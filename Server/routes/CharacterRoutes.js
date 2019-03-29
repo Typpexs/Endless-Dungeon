@@ -5,7 +5,7 @@ var toolsModule = require('../modules/Tools');
 var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
 let tools = new toolsModule();
-var characterModule = require('../modules/Character');
+//var characterModule = require('../modules/Character');
 
 characterRoute.use(bodyParser.json());
 characterRoute.use(bodyParser.urlencoded({ extended: true }));
